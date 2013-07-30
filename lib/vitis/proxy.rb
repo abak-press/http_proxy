@@ -19,6 +19,7 @@ module Vitis
       EM.synchrony do
         trap("TERM") { stop }
         trap("INT")  { stop }
+        trap("HUP") { reload }
 
         EventMachine::start_server(options[:host], options[:port], Connection, options) do |proxy|
           proxy.on_data do |data|
@@ -29,6 +30,24 @@ module Vitis
           proxy.instance_eval(&block)
         end
       end
+    end
+
+    # Public: Setup block of code for SUGHUP or reload command
+    #
+    # block - [Block|Proc] the block of code
+    #
+    # Returns nothing
+    def self.on_reload(&block)
+      @reload = block
+    end
+
+    # Public: Call block assigned on reload command
+    #
+    # Returns nothing
+    def self.reload
+      puts "Reloading Proxy server"
+
+      @reload.call if defined?(@reload)
     end
 
     # Public: Stop the em-proxy server
