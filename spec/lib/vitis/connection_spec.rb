@@ -1,5 +1,4 @@
 require "spec_helper"
-require "em-http-request"
 
 describe Vitis::Connection do
   let(:connection) { described_class.new("START", {host: "0.0.0.0", port: 9292}) }
