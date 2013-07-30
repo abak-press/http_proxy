@@ -50,11 +50,14 @@ module Vitis
 
     # Public: Route request to specific backend
     #
-    # backend_uid - [Symbol|String] the uid of backend
+    # backend - [Symbol|String|Hash] the backend for routing
+    #           Hash
+    #             :host - String the backend host
+    #             :port - [String|Fixnum] the backend port
     #
     # Returns nothing
-    def route_to(backend_uid)
-      @selected_backend = backend_uid.to_sym
+    def route_to(backend)
+      @selected_backend = backend.is_a?(String) ? backend.to_sym : backend
     end
 
     # Public: Process request
@@ -86,7 +89,7 @@ module Vitis
     #     proxy.close_connection
     #   end
     #
-    #   # request pre-processing with parsed headers containing User key
+    #   # request pre-processing with parsed headers containing "User" key
     #   proxy.process :header, "User" do |value|
     #     p value
     #     proxy.close_connection
@@ -115,7 +118,7 @@ module Vitis
         yield raw
 
         if_present(@selected_backend) do
-          server(@selected_backend, backends[@selected_backend])
+          setup_server(@selected_backend)
           raw
         end
       end
@@ -132,7 +135,7 @@ module Vitis
         yield headers
 
         if_present(@selected_backend) do
-          server(@selected_backend, backends[@selected_backend])
+          setup_server(@selected_backend)
           relay_to_servers(@headers.buffer)
         end
       end
@@ -159,6 +162,19 @@ module Vitis
     # Returns nothing
     def if_present(something)
       something ? yield : close_connection
+    end
+
+    # Internal: Setup backend for em-proxy
+    #
+    # backend - [Symbol|Hash] the name of backend or the backend options
+    #           Hash
+    #             :host - String the backend host
+    #             :port - [String|Fixnum] the backend port
+    #
+    # Returns nothing
+    def setup_server(backend)
+      backend.is_a?(Hash) ? server(:noname, backend)
+                          : server(backend, backends[backend])
     end
   end
 end
