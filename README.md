@@ -88,6 +88,8 @@ end
 *В блок `process` передается значение, которое находится по указанному ключу или же закрывается соединение*
 
 ```ruby
+require "vitis"
+
 Vitis::Proxy.start(host: "0.0.0.0", port: 3000, debug: false) do |proxy|
   proxy.backend :one, host: "0.0.0.0", port: 8081
 
@@ -97,6 +99,30 @@ Vitis::Proxy.start(host: "0.0.0.0", port: 3000, debug: false) do |proxy|
     proxy.route_to :one
   end
 end
+```
+
+### Перезагрузка прокси сервера
+
+Есть возможность назначить блок кода на сигнал `SUGHUP`
+
+```ruby
+require "vitis"
+
+Vitis::Proxy.on_reload do
+  p "I'm a reloaded proxy"
+end
+
+Vitis::Proxy.start(host: "0.0.0.0", port: 3000, debug: false) do |proxy|
+  proxy.backend :one, host: "0.0.0.0", port: 8081
+
+  proxy.process do
+    proxy.route_to :one
+  end
+end
+```
+
+```bash
+$ kill -HUP <process.pid>
 ```
 
 ## Contributing
