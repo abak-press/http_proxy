@@ -1,16 +1,16 @@
 # coding: utf-8
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "vitis/version"
+require "http_proxy/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "vitis-vinifera"
-  spec.version       = Vitis::VERSION
+  spec.name          = "http_proxy"
+  spec.version       = HttpProxy::VERSION
   spec.authors       = ["Strech (Sergey Fedorov)"]
   spec.email         = ["strech_ftf@mail.ru"]
   spec.description   = "Em-proxy based dsl for writting http requests processing"
-  spec.summary       = "Proxy server for processing http requests"
-  spec.homepage      = "http://github.com/abak-press/vitis-vinifera"
+  spec.summary       = "DSL for writting proxy server"
+  spec.homepage      = "http://github.com/abak-press/http_proxy"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)

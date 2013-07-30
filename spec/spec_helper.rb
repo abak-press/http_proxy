@@ -12,7 +12,7 @@ if ENV["COVERAGE"]
   #SimpleCov.minimum_coverage 95
 end
 
-require "vitis"
+require "http_proxy"
 
 RSpec.configure do |config|
   config.color = true

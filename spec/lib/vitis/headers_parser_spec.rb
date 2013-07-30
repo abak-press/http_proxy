@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe Vitis::HeadersParser do
+describe HttpProxy::HeadersParser do
   let(:request_headers) { ["GET / HTTP/1.1" ,"Vines-User: user@example.com", "\r\n"] * "\r\n" }
   let(:headers) { described_class.new }
 

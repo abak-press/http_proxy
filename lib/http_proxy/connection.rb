@@ -1,16 +1,16 @@
 # coding: utf-8
 require "em-proxy"
 
-module Vitis
+module HttpProxy
   # Public: The connection class for handling requests
   class Connection < EventMachine::ProxyServer::Connection
     # Public: The backends list
     #
     # Examples
     #
-    # Vitis::Connection.setup_backend(:one, host: "0.0.0.0", port: 9292)
-    # Vitis::Connection.setup_backend(:two, host: "0.0.0.0", port: 9292)
-    # Vitis::Connection.backends # => {one: {host: ...}, two: {host: ...}}
+    # HttpProxy::Connection.setup_backend(:one, host: "0.0.0.0", port: 9292)
+    # HttpProxy::Connection.setup_backend(:two, host: "0.0.0.0", port: 9292)
+    # HttpProxy::Connection.backends # => {one: {host: ...}, two: {host: ...}}
     #
     # Returns Hash
     def self.backends
@@ -33,17 +33,17 @@ module Vitis
 
     # Public: The request headers parser
     #
-    # Returns Vitis::HeadersParser
+    # Returns HttpProxy::HeadersParser
     def headers
       @headers
     end
 
-    # See Vitis::Connection::backends
+    # See HttpProxy::Connection::backends
     def backends
       Connection.backends
     end
 
-    # See Vitis::Connection::setup_backend
+    # See HttpProxy::Connection::setup_backend
     def backend(name, options)
       Connection.setup_backend(name.to_sym, options)
     end
@@ -71,7 +71,7 @@ module Vitis
     #
     # Examples
     #
-    # Vitis::Proxy.start(host: "0.0.0.0", port: 9292) do |proxy|
+    # HttpProxy::Proxy.start(host: "0.0.0.0", port: 9292) do |proxy|
     #   # simple request pre-processing
     #   proxy.process do
     #     proxy.close_connection
