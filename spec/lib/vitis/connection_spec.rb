@@ -1,10 +1,10 @@
 require "spec_helper"
 
-describe Vitis::Connection do
+describe HttpProxy::Connection do
   let(:connection) { described_class.new("START", {host: "0.0.0.0", port: 9292}) }
   let(:request_headers) { ["GET / HTTP/1.1", "Vines-User: user@example.com", "\r\n"] * "\r\n" }
 
-  before { stub_const("Vitis::Connection", Vitis::Connection.clone) }
+  before { stub_const("HttpProxy::Connection", HttpProxy::Connection.clone) }
 
   describe "#backend & #backends" do
     context "when backend is not set" do

@@ -1,7 +1,7 @@
 # coding: utf-8
 require "http/parser"
 
-module Vitis
+module HttpProxy
   # Public: The requesr headers parser
   class HeadersParser
     attr_reader :buffer
@@ -27,7 +27,7 @@ module Vitis
     #
     # Examples
     #
-    # headers = Vitis::HeadersParser.new
+    # headers = HttpProxy::HeadersParser.new
     # headers.process do |parsing_result|
     #   p parsing_result["User-Agent"]
     # end
