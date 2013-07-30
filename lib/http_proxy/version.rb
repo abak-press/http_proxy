@@ -1,6 +1,6 @@
 # coding: utf-8
 
-module Vitis
+module HttpProxy
   # Public: Gem version
   VERSION = "0.0.1"
 end

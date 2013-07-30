@@ -1,12 +1,12 @@
-# vitis-vinifera
+# http_proxy
 
-Vitis vinifera — DSL для написания прокси сервера http запросов
+Это DSL для написания прокси сервера http запросов. Основан на [em-proxy](https://github.com/igrigorik/em-proxy)
 
 ## Установка
 
 Добавляем следующие строчки в Gemfile:
 
-    gem "vitis-vinifera"
+    gem "http_proxy"
 
 И вызываем команду:
 
@@ -14,7 +14,7 @@ Vitis vinifera — DSL для написания прокси сервера htt
 
 Или устанавливаем через команду gem:
 
-    $ gem install vitis-vinifera
+    $ gem install http_proxy
 
 ## Использование
 
@@ -25,10 +25,10 @@ Vitis vinifera — DSL для написания прокси сервера htt
 Все соединения, для которых не был вызван метод `route_to` в блоке `process` будут закрыты
 
 ```ruby
-require "vitis"
+require "http_proxy"
 
 # Запуск прокси сервера на порту 8080
-Vitis::Proxy.start("0.0.0.0", 8080, debug: true) do |proxy|
+HttpProxy.start("0.0.0.0", 8080, debug: true) do |proxy|
   # Обработка пришедшего запроса
   proxy.process do
     # Отправить пришедший запрос на хост "192.168.1.1" и порт 9000
@@ -40,10 +40,10 @@ end
 ### Проксирование запросов между установленными бэкэндами
 
 ```ruby
-require "vitis"
+require "http_proxy"
 
 # Запуск прокси сервера на порту 8080
-Vitis::Proxy.start("0.0.0.0", 8080, debug: true) do |proxy|
+HttpProxy.start("0.0.0.0", 8080, debug: true) do |proxy|
   # Регистрирование одного бэкэнда на порту 8081
   # Бэкэнд одлжен быть запущен отдельно. Их может быть сколько угодно
   proxy.backend :one, host: "0.0.0.0", port: 8081
@@ -63,9 +63,9 @@ end
 *В блок `process` заголовки передаются в raw формате, т.е простой строкой*
 
 ```ruby
-require "vitis"
+require "http_proxy"
 
-Vitis::Proxy.start("0.0.0.0", 8080, debug: true) do |proxy|
+HttpProxy.start("0.0.0.0", 8080, debug: true) do |proxy|
   proxy.backend :one, host: "0.0.0.0", port: 8081
 
   proxy.process do |raw_headers|
@@ -76,14 +76,12 @@ Vitis::Proxy.start("0.0.0.0", 8080, debug: true) do |proxy|
 end
 ```
 
-### Проксирование запросов с учетом пришедших заголовков
-
 *В блок `process` заголовки передаются в hash формате, ключи - строковые*
 
 ```ruby
-require "vitis"
+require "http_proxy"
 
-Vitis::Proxy.start("0.0.0.0", 8080, debug: true) do |proxy|
+HttpProxy.start("0.0.0.0", 8080, debug: true) do |proxy|
   proxy.backend :one, host: "0.0.0.0", port: 8081
 
   proxy.process :headers do |headers|
@@ -99,9 +97,9 @@ end
 *В блок `process` передается значение, которое находится по указанному ключу или же закрывается соединение*
 
 ```ruby
-require "vitis"
+require "http_proxy"
 
-Vitis::Proxy.start(host: "0.0.0.0", port: 3000, debug: false) do |proxy|
+HttpProxy.start(host: "0.0.0.0", port: 3000, debug: false) do |proxy|
   proxy.backend :one, host: "0.0.0.0", port: 8081
 
   proxy.process :header, "Vines-User" do |header_key_value|
@@ -117,13 +115,13 @@ end
 Есть возможность назначить блок кода на сигнал `SUGHUP`
 
 ```ruby
-require "vitis"
+require "http_proxy"
 
-Vitis::Proxy.on_reload do
+HttpProxy.on_reload do
   p "I'm a reloaded proxy"
 end
 
-Vitis::Proxy.start(host: "0.0.0.0", port: 3000, debug: false) do |proxy|
+HttpProxy.start(host: "0.0.0.0", port: 3000, debug: false) do |proxy|
   proxy.backend :one, host: "0.0.0.0", port: 8081
 
   proxy.process do
