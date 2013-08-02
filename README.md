@@ -110,16 +110,15 @@ HttpProxy.start(host: "0.0.0.0", port: 3000, debug: false) do |proxy|
 end
 ```
 
-### Перезагрузка прокси сервера
+### Перехват сигналов
 
-Есть возможность назначить блок кода на сигнал `SUGHUP`
+Есть возможность назначить блок кода на сигналы `SUGHUP`, `SIGUSR1` и `SIGUSR2`
 
 ```ruby
 require "http_proxy"
 
-HttpProxy.on_reload do
-  p "I'm a reloaded proxy"
-end
+HttpProxy.on_sighup { p "I catch SIGHUP" }
+HttpProxy.on_sigusr1 { p "I catch SIGUSR1" }
 
 HttpProxy.start(host: "0.0.0.0", port: 3000, debug: false) do |proxy|
   proxy.backend :one, host: "0.0.0.0", port: 8081
@@ -132,6 +131,7 @@ end
 
 ```bash
 $ kill -HUP <process.pid>
+$ kill -USR1 <process.pid>
 ```
 
 ## Contributing
