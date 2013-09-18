@@ -60,6 +60,28 @@ module HttpProxy
       @selected_backend = backend.is_a?(String) ? backend.to_sym : backend
     end
 
+    # Public: Attach block of code for error handling before connection will be closed
+    #
+    # block - [Block|Proc] the block of code for handle errors
+    #
+    # Examples
+    #
+    # HttpProxy::Proxy.start(host: "0.0.0.0", port: 9292) do |proxy|
+    #   proxy.process do
+    #     proxy.route_to host: "unknown.host", port: 1254
+    #   end
+    #
+    #   proxy.fallback do |error, backend|
+    #     p "An error has occured"
+    #     p error, backend
+    #   end
+    # end
+    #
+    # Returns nothing
+    def fallback(&block)
+      @fallback = block
+    end
+
     # Public: Process request
     #
     # name  - Symbol the pre-processing method (default: :raw)
@@ -115,11 +137,13 @@ module HttpProxy
     # Returns nothing
     def process_with_raw(&block)
       on_data do |raw|
-        yield raw
+        failsafe do
+          yield raw
 
-        if_present(@selected_backend) do
-          setup_server(@selected_backend)
-          raw
+          if_present(@selected_backend) do
+            setup_server(@selected_backend)
+            raw
+          end
         end
       end
     end
@@ -132,11 +156,13 @@ module HttpProxy
     def process_with_headers(&block)
       @headers = HeadersParser.new
       @headers.process do |headers|
-        yield headers
+        failsafe do
+          yield headers
 
-        if_present(@selected_backend) do
-          setup_server(@selected_backend)
-          relay_to_servers(@headers.buffer)
+          if_present(@selected_backend) do
+            setup_server(@selected_backend)
+            relay_to_servers(@headers.buffer)
+          end
         end
       end
     end
@@ -162,6 +188,22 @@ module HttpProxy
     # Returns nothing
     def if_present(something)
       something ? yield : close_connection
+    end
+
+    # Internal: Wrap code execution in rescue block. If error occur call fallback block
+    # if it's defined and close connection
+    #
+    # Returns nothing
+    def failsafe
+      begin
+        yield
+      rescue Exception => error
+        raise if @fallback.nil?
+
+        @fallback.call(error, @selected_backend)
+
+        close_connection
+      end
     end
 
     # Internal: Setup backend for em-proxy

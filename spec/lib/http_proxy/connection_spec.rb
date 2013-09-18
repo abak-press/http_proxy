@@ -74,6 +74,46 @@ describe HttpProxy::Connection do
     end
   end
 
+  describe "#fallback" do
+    context "when fallback is set" do
+      let(:error) { RuntimeError.new("Unknown Error") }
+      let(:backend) { {host: "unknown.host", port: 9595} }
+
+      before do
+        connection.stub(:server).and_raise error
+        connection.stub(:close_connection)
+
+        connection.stub(:backends).and_return(Hash.new)
+        connection.route_to backend
+      end
+
+      it "should yield given fallback block" do
+        expect do |b|
+          connection.fallback(&b)
+          connection.process { "nothing" }
+          connection.receive_data(request_headers)
+        end.to yield_with_args error, backend
+      end
+    end
+
+    context "when fallback is not set" do
+      before do
+        connection.stub(:server).and_raise RuntimeError
+        connection.stub(:close_connection)
+
+        connection.stub(:backends).and_return(Hash.new)
+        connection.route_to host: "unknown.host", port: 9595
+      end
+
+      it "should re-rise exception" do
+        expect do
+          connection.process { "nothing" }
+          connection.receive_data(request_headers)
+        end.to raise_error RuntimeError
+      end
+    end
+  end
+
   describe "#if_present" do
     before { connection.stub(:close_connection) }
 
